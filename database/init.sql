@@ -25,7 +25,7 @@ CREATE TABLE projects (
     start_date DATE NOT NULL,
     end_date DATE,
     status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active','completed','suspended')),
-    manager_id INT NOT NULL REFERENCES employees(id) ON DELETE RESTRICT
+    manager_id INT REFERENCES employees(id) ON DELETE SET NULL
 );
 --участники
 CREATE TABLE project_members (
@@ -38,8 +38,8 @@ CREATE TABLE tasks (
     id SERIAL PRIMARY KEY,
     title VARCHAR(250) NOT NULL,
     description TEXT,
-    project_id INT NOT NULL REFERENCES projects(id) ON DELETE RESTRICT,
-    assignee_id INT NOT NULL REFERENCES employees(id) ON DELETE RESTRICT,
+    project_id INT REFERENCES projects(id) ON DELETE CASCADE,
+    assignee_id INT REFERENCES employees(id) ON DELETE CASCADE,
     priority VARCHAR(10) NOT NULL DEFAULT 'medium' CHECK (priority IN ('low','medium','high','critical')),
     status VARCHAR(20) NOT NULL DEFAULT 'new' CHECK (status IN ('new','in_progress','done','cancelled')),
     deadline DATE,
@@ -52,7 +52,7 @@ CREATE TABLE tasks (
 CREATE TABLE task_reviews (
     id SERIAL PRIMARY KEY,
     task_id INT NOT NULL UNIQUE REFERENCES tasks(id) ON DELETE CASCADE,
-    reviewer_id INT NOT NULL REFERENCES employees(id) ON DELETE RESTRICT,
+    reviewer_id INT REFERENCES employees(id) ON DELETE SET NULL,
     rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT now()

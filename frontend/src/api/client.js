@@ -1,0 +1,30 @@
+import axios from 'axios';
+import { message } from 'antd';
+
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api',
+});
+
+// Добавляем токен в запросы
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Обработка 401 и других ошибок
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('access_token');
+      window.location.href = '/login';
+    }
+    message.error(error.response?.data?.detail || 'Ошибка запроса');
+    return Promise.reject(error);
+  }
+);
+
+export default api;
