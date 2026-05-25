@@ -6,7 +6,6 @@ const PrivateRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Декодируем роль из токена (простой вариант)
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     if (allowedRoles && !allowedRoles.includes(payload.role)) {

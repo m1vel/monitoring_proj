@@ -1,0 +1,43 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+*.whl
+
+# --- Переменные окружения ---
+.env
+.env.*
+!.env.example
+
+# --- IDE / редакторы ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Операционные системы ---
+Thumbs.db
+.DS_Store
+
+# --- Node / Frontend ---
+node_modules/
+frontend/dist/
+frontend/build/
+*.log
+npm-debug.log*
+
+# --- Docker (опционально) ---
+pgdata/
+docker-compose.override.yml
+
+# --- База данных (не исключаем schema) ---
+# database/init.sql – ОСТАВЛЯЕМ, это важный файл
+*.sqlite3
+*.db

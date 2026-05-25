@@ -6,11 +6,9 @@ from .. import database, dependencies, models
 
 router = APIRouter(prefix="/api/queries", tags=["queries"])
 
-# Утилита для выполнения сырого SQL и возврата списка словарей
 def execute_raw(db: Session, query: str, params=None):
     return db.execute(text(query), params or {}).mappings().all()
 
-# 1. Доля выполненных задач сотрудника в отделе
 @router.get("/done_tasks_share")
 def done_tasks_share(db: Session = Depends(database.get_db)):
     query = """
@@ -24,7 +22,6 @@ def done_tasks_share(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 2. Классификация проектов по загруженности
 @router.get("/project_load")
 def project_load(db: Session = Depends(database.get_db)):
     query = """
@@ -37,7 +34,6 @@ def project_load(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 3. Сотрудники с рейтингом выше среднего по отделу (скалярный подзапрос + функция)
 @router.get("/above_dept_avg_rating")
 def above_dept_avg(db: Session = Depends(database.get_db)):
     query = """
@@ -52,7 +48,6 @@ def above_dept_avg(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 4. Проекты с критическими незавершёнными задачами (EXISTS)
 @router.get("/projects_with_critical_open")
 def projects_with_critical_open(db: Session = Depends(database.get_db)):
     query = """
@@ -65,7 +60,6 @@ def projects_with_critical_open(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 5. Сотрудники, участвующие в проектах указанного менеджера (IN)
 @router.get("/employees_in_manager_projects")
 def employees_in_manager_projects(manager_id: int = Query(...), db: Session = Depends(database.get_db)):
     query = """
@@ -79,7 +73,6 @@ def employees_in_manager_projects(manager_id: int = Query(...), db: Session = De
     """
     return execute_raw(db, query, {"mid": manager_id})
 
-# 6. Топ-3 сотрудника по продуктивности за последний месяц (CTE + RANK)
 @router.get("/top3_kpi")
 def top3_kpi(db: Session = Depends(database.get_db)):
     query = """
@@ -96,7 +89,6 @@ def top3_kpi(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 7. Динамика продуктивности (сравнение двух месяцев) — параметры month1, month2
 @router.get("/productivity_change")
 def productivity_change(month1: str = Query(..., description="YYYY-MM-DD первого месяца"),
                         month2: str = Query(..., description="YYYY-MM-DD второго месяца"),
@@ -116,17 +108,14 @@ def productivity_change(month1: str = Query(..., description="YYYY-MM-DD пер�
     """
     return execute_raw(db, query, {"m1": month1, "m2": month2})
 
-# 8. Иерархия подчинённых (рекурсивный CTE) через функцию
 @router.get("/subordinates")
 def get_subordinates(manager_id: int = Query(...), db: Session = Depends(database.get_db)):
-    # Вызов табличной функции fn_get_subordinates
     result = db.execute(
         text("SELECT * FROM fn_get_subordinates(:mid)"),
         {"mid": manager_id}
     ).mappings().all()
     return result
 
-# 9. Восходящая иерархия от сотрудника к корню
 @router.get("/hierarchy_up")
 def hierarchy_up(employee_id: int = Query(...), db: Session = Depends(database.get_db)):
     query = """
@@ -140,7 +129,6 @@ def hierarchy_up(employee_id: int = Query(...), db: Session = Depends(database.g
     """
     return execute_raw(db, query, {"eid": employee_id})
 
-# 10. Перерасход времени по задачам с рангом внутри проекта
 @router.get("/overtime_rank")
 def overtime_rank(db: Session = Depends(database.get_db)):
     query = """
@@ -154,7 +142,6 @@ def overtime_rank(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 11. Скользящее среднее числа задач по отделам за 3 месяца
 @router.get("/moving_avg_tasks")
 def moving_avg_tasks(db: Session = Depends(database.get_db)):
     query = """
@@ -172,12 +159,10 @@ def moving_avg_tasks(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 12. Статистика отделов (материализованное представление)
 @router.get("/department_stats")
 def department_stats(db: Session = Depends(database.get_db)):
     return execute_raw(db, "SELECT * FROM mv_department_stats")
 
-# 13. Детальный отчёт по задачам с оценками
 @router.get("/tasks_with_reviews")
 def tasks_with_reviews(db: Session = Depends(database.get_db)):
     query = """
@@ -191,7 +176,6 @@ def tasks_with_reviews(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 14. Сотрудники с >5 просроченными задачами
 @router.get("/overdue_more_than_5")
 def overdue_more_than_5(db: Session = Depends(database.get_db)):
     query = """
@@ -204,13 +188,11 @@ def overdue_more_than_5(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 15. Топ-3 продуктивности по отделам (использует представление v_employee_kpi_current)
 @router.get("/top3_by_department")
 def top3_by_department(db: Session = Depends(database.get_db)):
     query = "SELECT * FROM v_employee_kpi_current WHERE productivity_rank <= 3 ORDER BY department"
     return execute_raw(db, query)
 
-# 16. Генерация всех пар сотрудник-месяц 2025 с KPI
 @router.get("/employee_month_matrix")
 def employee_month_matrix(db: Session = Depends(database.get_db)):
     query = """
@@ -225,7 +207,6 @@ def employee_month_matrix(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 17. Запуск расчёта KPI за месяц (вызов хранимой процедуры)
 @router.post("/calculate_kpi")
 def calculate_kpi(period: str = Query(..., description="Первое число месяца, YYYY-MM-DD"),
                   db: Session = Depends(database.get_db),
@@ -234,7 +215,6 @@ def calculate_kpi(period: str = Query(..., description="Первое число 
     db.commit()
     return {"status": "KPI calculated", "period": period}
 
-# 18. Сравнение средних рейтингов за два квартала
 @router.get("/compare_quarter_ratings")
 def compare_quarter_ratings(
     q1_start: str = Query(...), q1_end: str = Query(...),
@@ -250,7 +230,6 @@ def compare_quarter_ratings(
     """
     return execute_raw(db, query, {"q1s": q1_start, "q1e": q1_end, "q2s": q2_start, "q2e": q2_end})
 
-# 19. Сотрудники с рейтингом выше, чем у их менеджера
 @router.get("/rating_higher_than_manager")
 def rating_higher_than_manager(db: Session = Depends(database.get_db)):
     query = """
@@ -261,7 +240,6 @@ def rating_higher_than_manager(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 20. Изменение рейтинга (LAG) – падение >0.5
 @router.get("/rating_drop")
 def rating_drop(db: Session = Depends(database.get_db)):
     query = """
@@ -277,7 +255,6 @@ def rating_drop(db: Session = Depends(database.get_db)):
     """
     return execute_raw(db, query)
 
-# 21. Обновление материализованного представления (admin)
 @router.post("/refresh_materialized_views")
 def refresh_mv(db: Session = Depends(database.get_db),
                current_user: models.Employee = Depends(dependencies.require_role('admin'))):

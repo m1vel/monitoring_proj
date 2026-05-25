@@ -33,13 +33,11 @@ def require_role(required_role: str):
         return user
     return role_dependency
 
-# Для manager: проверяем, что запрашиваемый сотрудник подчинён текущему менеджеру (или админу)
 def get_managed_employee(employee_id: int, db: Session = Depends(database.get_db),
                          user: models.Employee = Depends(get_current_user)):
     if user.role == 'admin':
         return db.query(models.Employee).filter(models.Employee.id == employee_id).first()
     elif user.role == 'manager':
-        # Проверяем, является ли сотрудник подчинённым
         sub = db.query(models.Employee).filter(
             (models.Employee.id == employee_id) &
             ((models.Employee.manager_id == user.id) | (models.Employee.id == user.id))  # самого себя видит

@@ -124,12 +124,10 @@ const Reviews = () => {
           <Form.Item name="comment" label="Комментарий">
             <Input.TextArea rows={2} />
           </Form.Item>
-          {/* reviewer_id определится на бэкенде автоматически? Нет, в схеме требуется. Нужно передать текущего пользователя? У нас в API create_review требует reviewer_id, но можно на бэкенде автоматически подставлять текущего. Предположим, что мы отправляем текущего пользователя. Получим его id из токена. */}
           <Form.Item name="reviewer_id" hidden initialValue={0}>
             <InputNumber />
           </Form.Item>
         </Form>
-        {/* Перед отправкой проставим reviewer_id вручную */}
         {modalVisible && (() => {
           const token = localStorage.getItem('access_token');
           if (token) {

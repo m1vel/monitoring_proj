@@ -12,9 +12,9 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const [tasksRes, kpiRes, projRes] = await Promise.all([
-          api.get('/tasks/'),                // все задачи (потом подсчитаем)
-          api.get('/queries/top3_kpi'),      // топ-3
-          api.get('/projects/'),             // количество проектов
+          api.get('/tasks/'),
+          api.get('/queries/top3_kpi'),
+          api.get('/projects/'),
         ]);
 
         const totalTasks = tasksRes.data.length;

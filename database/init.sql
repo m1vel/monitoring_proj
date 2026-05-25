@@ -230,19 +230,18 @@ GROUP BY e.department;
 CREATE UNIQUE INDEX idx_mv_dept ON mv_department_stats (department);
 
 INSERT INTO employees (login, password_hash, full_name, position, department, email, hire_date, role, manager_id) VALUES
-('admin', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Иванов Иван Иванович', 'Системный администратор', 'IT', 'admin@company.com', '2026-01-10', 'admin', NULL),
+('admin', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Симонов Тимур Андреевич', 'Владелец', 'IT', 'tsimonov12@gmail.com', '2026-01-10', 'admin', NULL),
 ('manager1', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Петров Петр Петрович', 'Руководитель отдела разработки', 'Разработка', 'manager1@company.com', '2026-01-11', 'manager', 1),
-('manager2', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Сидорова Анна Сергеевна', 'Руководитель отдела тестирования', 'Тестирование', 'manager2@company.com', '2026-01-12', 'manager', 1),
-('emp1', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Кузнецов Алексей Викторович', 'Старший разработчик', 'Разработка', 'emp1@company.com', '2026-01-13', 'employee', 2),
-('emp2', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Смирнова Екатерина Андреевна', 'Разработчик', 'Разработка', 'emp2@company.com', '2026-01-14', 'employee', 2),
-('emp3', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Васильев Дмитрий Олегович', 'Тестировщик', 'Тестирование', 'emp3@company.com', '2026-01-15', 'employee', 3),
-('emp4', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Зайцева Ольга Николаевна', 'Младший разработчик', 'Разработка', 'emp4@company.com', '2026-01-16', 'employee', 2);
+('manager2', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Сидорова Анна', 'Руководитель отдела тестирования', 'Тестирование', 'manager2@company.com', '2026-01-12', 'manager', 1),
+('emp1', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Кузнецов Алексей', 'Старший разработчик', 'Разработка', 'emp1@company.com', '2026-01-13', 'employee', 2),
+('emp2', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Смирнова Екатерина', 'Разработчик', 'Разработка', 'emp2@company.com', '2026-01-14', 'employee', 2),
+('emp3', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Заречный Дмитрий', 'Тестировщик', 'Тестирование', 'emp3@company.com', '2026-01-15', 'employee', 3),
+('emp4', '$2b$12$LJ3m4ys3Lk0TSwHIAZmHwOmHJqFvx2gCF1f6d7JCjyZ7s6vXfTwKa', 'Зайцева Ольга', 'Младший разработчик', 'Разработка', 'emp4@company.com', '2026-01-16', 'employee', 2);
 
 INSERT INTO projects (name, description, start_date, end_date, status, manager_id) VALUES
 ('Разработка CRM', 'Внутренняя система управления клиентами', '2026-01-10', '2026-12-31', 'active', 2),
 ('Мобильное приложение', 'Кроссплатформенное приложение', '2026-01-11', '2026-12-31', 'active', 2),
 ('Платформа тестирования', 'Автоматизация тестирования', '2026-01-12', '2026-12-31', 'active', 3);
-('Продакшен', 'Выпуск продукта', '2026-01-13', '2026-12-31', 'active', 3);
 
 INSERT INTO project_members (project_id, employee_id) VALUES
 (1, 4), (1, 5), (1, 6),

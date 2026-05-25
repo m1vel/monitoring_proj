@@ -5,7 +5,6 @@ from .. import schemas, models, database, dependencies
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
 
-# Проверка доступа к проекту: admin — любой, manager — если руководитель или участник, employee — только свои проекты
 def get_accessible_project(project_id: int, db: Session, user: models.Employee) -> models.Project:
     project = db.query(models.Project).filter(models.Project.id == project_id).first()
     if not project:
@@ -13,7 +12,6 @@ def get_accessible_project(project_id: int, db: Session, user: models.Employee) 
     if user.role == 'admin':
         return project
     if user.role == 'manager':
-        # менеджер видит проекты, где он руководитель, или где он участник
         if project.manager_id == user.id:
             return project
         is_member = db.query(models.ProjectMember).filter(
@@ -23,7 +21,6 @@ def get_accessible_project(project_id: int, db: Session, user: models.Employee) 
         if is_member:
             return project
         raise HTTPException(status_code=403, detail="Not your project")
-    # employee
     is_member = db.query(models.ProjectMember).filter(
         models.ProjectMember.project_id == project_id,
         models.ProjectMember.employee_id == user.id
@@ -40,13 +37,11 @@ def list_projects(
     if current_user.role == 'admin':
         projects = db.query(models.Project).all()
     elif current_user.role == 'manager':
-        # проекты, где он руководитель или участник
         projects = db.query(models.Project).outerjoin(models.ProjectMember).filter(
             (models.Project.manager_id == current_user.id) |
             (models.ProjectMember.employee_id == current_user.id)
         ).distinct().all()
     else:
-        # employee: только проекты, в которых он участвует
         projects = db.query(models.Project).join(models.ProjectMember).filter(
             models.ProjectMember.employee_id == current_user.id
         ).all()

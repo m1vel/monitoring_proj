@@ -20,7 +20,6 @@ const Reports = () => {
   const reportRef = useRef(null);
 
   useEffect(() => {
-    // Загружаем список сотрудников для фильтра
     api
       .get('/employees/')
       .then((res) => setEmployees(res.data))
@@ -30,11 +29,9 @@ const Reports = () => {
   const fetchReport = async () => {
     setLoading(true);
     try {
-      // 1. Данные для таблицы: используем employee_month_matrix и фильтруем
       const matrixRes = await api.get('/queries/employee_month_matrix');
       const allData = matrixRes.data;
 
-      // Фильтрация по выбранному месяцу и сотруднику
       const selectedMonth = month.format('YYYY-MM');
       const filtered = allData.filter((item) => {
         const itemMonth = dayjs(item.period).format('YYYY-MM');
@@ -43,7 +40,6 @@ const Reports = () => {
         return matchMonth && matchEmployee;
       });
 
-      // Преобразуем в удобный для таблицы вид
       const tableData = filtered.map((item) => ({
         full_name: item.full_name,
         productivity_score: item.score,
@@ -51,7 +47,6 @@ const Reports = () => {
       }));
       setKpiData(tableData);
 
-      // 2. График динамики по отделам (скользящее среднее)
       const chartRes = await api.get('/queries/moving_avg_tasks');
       setChartData(chartRes.data);
     } catch (error) {

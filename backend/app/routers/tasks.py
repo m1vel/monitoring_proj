@@ -9,21 +9,20 @@ router = APIRouter(prefix="/api/tasks", tags=["tasks"])
 def get_accessible_task(task_id: int, db: Session, user: models.Employee) -> models.Task:
     task = db.query(models.Task).filter(models.Task.id == task_id).first()
     if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="задача не найдена")
     if user.role == 'admin':
         return task
     if user.role == 'manager':
-        # Менеджер видит задачи своих подчинённых (включая задачи проектов, где он участник? Упростим: все задачи, где исполнитель подчинённый)
         subordinate = db.query(models.Employee).filter(
             models.Employee.id == task.assignee_id,
             models.Employee.manager_id == user.id
         ).first()
         if subordinate or task.assignee_id == user.id:
             return task
-        raise HTTPException(status_code=403, detail="Not your subordinate's task")
-    # employee: только свои задачи
+        raise HTTPException(status_code=403, detail="не в твоей юрисдикции")
+
     if task.assignee_id != user.id:
-        raise HTTPException(status_code=403, detail="Access only to your own tasks")
+        raise HTTPException(status_code=403, detail="Доступ только к разрешённому (свои задачи)")
     return task
 
 @router.get("/", response_model=List[schemas.TaskOut])
@@ -37,7 +36,6 @@ def list_tasks(
     if current_user.role == 'admin':
         pass
     elif current_user.role == 'manager':
-        # задачи, где исполнитель подчинённый или сам менеджер
         subordinate_ids = db.query(models.Employee.id).filter(
             models.Employee.manager_id == current_user.id
         ).all()
@@ -68,14 +66,12 @@ def create_task(
     db: Session = Depends(database.get_db),
     current_user: models.Employee = Depends(dependencies.get_current_user)
 ):
-    # Создавать могут admin и manager (назначать своих подчинённых)
     if current_user.role not in ['admin', 'manager']:
-        raise HTTPException(status_code=403, detail="Only admin or manager can create tasks")
+        raise HTTPException(status_code=403, detail="Только админ или менеджер может создавать таски")
     if current_user.role == 'manager':
-        # Проверим, что assignee_id — подчинённый или сам менеджер
         assignee = db.query(models.Employee).filter(models.Employee.id == task.assignee_id).first()
         if not assignee or (assignee.manager_id != current_user.id and assignee.id != current_user.id):
-            raise HTTPException(status_code=403, detail="Assignee must be your subordinate")
+            raise HTTPException(status_code=403, detail="...")
     new_task = models.Task(**task.dict())
     db.add(new_task)
     db.commit()
@@ -90,13 +86,11 @@ def update_task(
     current_user: models.Employee = Depends(dependencies.get_current_user)
 ):
     task = get_accessible_task(task_id, db, current_user)
-    # employee может обновлять только статус и фактические часы у своих задач
     if current_user.role == 'employee':
         allowed_fields = {'status', 'actual_hours'}
         for field in updates.dict(exclude_unset=True):
             if field not in allowed_fields:
-                raise HTTPException(status_code=403, detail=f"You can only update status and actual_hours")
-    # admin и manager могут всё
+                raise HTTPException(status_code=403, detail=f"вы можете обновить только статус или (ч)")
     for field, value in updates.dict(exclude_unset=True).items():
         setattr(task, field, value)
     db.commit()

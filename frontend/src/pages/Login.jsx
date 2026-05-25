@@ -19,7 +19,6 @@ const Login = () => {
       message.success('Вход выполнен');
       navigate('/');
     } catch (error) {
-      // Ошибка уже обработана интерсептором, но можно добавить конкретное сообщение
     } finally {
       setLoading(false);
     }

@@ -2,7 +2,7 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import date, datetime
 
-# ------------------ Employee ------------------
+#employee
 class EmployeeBase(BaseModel):
     login: str
     full_name: str
@@ -14,7 +14,7 @@ class EmployeeBase(BaseModel):
     manager_id: Optional[int] = None
 
 class EmployeeCreate(EmployeeBase):
-    password: str  # пароль без хэша
+    password: str
 
 class EmployeeUpdate(BaseModel):
     login: Optional[str] = None
@@ -32,7 +32,7 @@ class EmployeeOut(EmployeeBase):
     class Config:
         from_attributes = True
 
-# ------------------ Project ------------------
+#project
 class ProjectBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -56,7 +56,7 @@ class ProjectOut(ProjectBase):
     class Config:
         from_attributes = True
 
-# ------------------ Task ------------------
+#tasks
 class TaskBase(BaseModel):
     title: str
     description: Optional[str] = None
@@ -87,7 +87,7 @@ class TaskOut(TaskBase):
     class Config:
         from_attributes = True
 
-# ------------------ Review ------------------
+#review
 class ReviewBase(BaseModel):
     task_id: int
     reviewer_id: int
@@ -102,8 +102,7 @@ class ReviewOut(ReviewBase):
     created_at: datetime
     class Config:
         from_attributes = True
-
-# ------------------ Auth ------------------
+#auth
 class Token(BaseModel):
     access_token: str
     token_type: str

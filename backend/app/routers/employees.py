@@ -13,12 +13,10 @@ def get_all_employees(
     if current_user.role == 'admin':
         employees = db.query(models.Employee).all()
     elif current_user.role == 'manager':
-        # Свои подчинённые + сам
         employees = db.query(models.Employee).filter(
             (models.Employee.manager_id == current_user.id) | (models.Employee.id == current_user.id)
         ).all()
     else:
-        # Только себя
         employees = [current_user]
     return employees
 
@@ -36,7 +34,6 @@ def create_employee(
     db: Session = Depends(database.get_db),
     current_user: models.Employee = Depends(dependencies.require_role('admin'))
 ):
-    # Проверка уникальности
     if db.query(models.Employee).filter(models.Employee.login == employee.login).first():
         raise HTTPException(status_code=400, detail="Login already exists")
     hashed_pwd = auth.get_password_hash(employee.password)
@@ -72,7 +69,6 @@ def delete_employee(
     db: Session = Depends(database.get_db),
     current_user: models.Employee = Depends(dependencies.require_role('admin'))
 ):
-    # Триггер в БД не даст удалить с открытыми задачами
     emp = db.query(models.Employee).filter(models.Employee.id == employee_id).first()
     if not emp:
         raise HTTPException(status_code=404)

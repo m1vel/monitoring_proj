@@ -13,7 +13,6 @@ def list_reviews(
     if current_user.role == 'admin':
         reviews = db.query(models.TaskReview).all()
     elif current_user.role == 'manager':
-        # оценки, которые выставил этот менеджер или оценки подчинённым
         reviews = db.query(models.TaskReview).join(models.Task).join(
             models.Employee, models.Task.assignee_id == models.Employee.id
         ).filter(
@@ -21,7 +20,6 @@ def list_reviews(
             (models.Employee.manager_id == current_user.id)
         ).all()
     else:
-        # сотрудник видит только оценки своих задач
         reviews = db.query(models.TaskReview).join(models.Task).filter(
             models.Task.assignee_id == current_user.id
         ).all()
@@ -33,10 +31,8 @@ def create_review(
     db: Session = Depends(database.get_db),
     current_user: models.Employee = Depends(dependencies.get_current_user)
 ):
-    # Создавать могут admin и manager
     if current_user.role not in ['admin', 'manager']:
         raise HTTPException(status_code=403, detail="Only admin or manager can review")
-    # Проверим, что задача существует и исполнитель — подчинённый
     task = db.query(models.Task).filter(models.Task.id == review.task_id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -44,7 +40,6 @@ def create_review(
         assignee = db.query(models.Employee).filter(models.Employee.id == task.assignee_id).first()
         if not assignee or assignee.manager_id != current_user.id:
             raise HTTPException(status_code=403, detail="Can only review your subordinates' tasks")
-    # Проверка на уникальность
     existing = db.query(models.TaskReview).filter(models.TaskReview.task_id == review.task_id).first()
     if existing:
         raise HTTPException(status_code=400, detail="Task already reviewed")

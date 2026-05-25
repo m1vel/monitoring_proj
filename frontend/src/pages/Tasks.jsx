@@ -97,7 +97,6 @@ const Tasks = () => {
       };
 
       if (editingTask) {
-        // employee может обновлять только статус и actual_hours
         if (getCurrentUserRole() === 'employee') {
           const allowed = { status: values.status, actual_hours: values.actual_hours };
           await api.put(`/tasks/${editingTask.id}`, allowed);
@@ -152,7 +151,6 @@ const Tasks = () => {
     },
   ];
 
-  // Форма: для сотрудника при редактировании показываем только статус и фактическое время
   const isEmployeeEditing = editingTask && getCurrentUserRole() === 'employee';
 
   return (
